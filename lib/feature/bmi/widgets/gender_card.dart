@@ -1,6 +1,8 @@
+import 'package:bmi/core/app_animations.dart';
+import 'package:bmi/core/app_colors.dart';
 import 'package:flutter/material.dart';
 
-class GenderCard extends StatelessWidget {
+class GenderCard extends StatefulWidget {
   final bool isSelected;
   final IconData icon;
   final String label;
@@ -17,28 +19,138 @@ class GenderCard extends StatelessWidget {
   });
 
   @override
+  State<GenderCard> createState() => _GenderCardState();
+}
+
+class _GenderCardState extends State<GenderCard>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+    AppAnimations.scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+    AppAnimations.glowAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  Color get selectedColor =>
+      widget.isMale ? AppColors.maleColor : AppColors.femaleColor;
+  Color get unselectedColor => AppColors.cardColor;
+
+  @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          margin: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: isSelected
-                ? (isMale ? Colors.blueAccent : Colors.pinkAccent)
-                : const Color(0xFF1D1E33),
-            borderRadius: BorderRadius.circular(10),
+    return AnimatedBuilder(
+      animation: _animationController,
+      builder: (context, child) {
+        return Transform.scale(
+          scale: AppAnimations.scaleAnimation.value,
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  _animationController.forward().then((_) {
+                    _animationController.reverse();
+                  });
+                  widget.onTap();
+                },
+                borderRadius: BorderRadius.circular(20),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 100),
+                  curve: Curves.easeInOut,
+                  decoration: BoxDecoration(
+                    color: widget.isSelected
+                        ? selectedColor.withOpacity(0.1)
+                        : unselectedColor,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: widget.isSelected
+                          ? selectedColor
+                          : Colors.transparent,
+                      width: 2,
+                    ),
+                    boxShadow: widget.isSelected
+                        ? [
+                            BoxShadow(
+                              color: selectedColor.withOpacity(0.3),
+                              blurRadius: 20,
+                              offset: const Offset(0, 8),
+                            ),
+                          ]
+                        : [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 120),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: widget.isSelected
+                              ? selectedColor.withOpacity(0.2)
+                              : AppColors.surfaceColor.withOpacity(0.5),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          widget.icon,
+                          size: 48,
+                          color: widget.isSelected
+                              ? selectedColor
+                              : AppColors.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        widget.label,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: widget.isSelected
+                              ? selectedColor
+                              : AppColors.textSecondary,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                      if (widget.isSelected) ...[
+                        const SizedBox(height: 8),
+                        Container(
+                          width: 40,
+                          height: 3,
+                          decoration: BoxDecoration(
+                            color: selectedColor,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, size: 80),
-              const SizedBox(height: 10),
-              Text(label, style: const TextStyle(fontSize: 18)),
-            ],
-          ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

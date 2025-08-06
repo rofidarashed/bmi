@@ -1,15 +1,26 @@
+import 'package:bmi/core/app_animations.dart';
+import 'package:bmi/core/app_colors.dart';
+import 'package:bmi/feature/bmi/widgets/bmi_range.dart';
+import 'package:bmi/feature/bmi/widgets/custome_result_card.dart';
+import 'package:bmi/feature/bmi/widgets/health_advice.dart';
+import 'package:bmi/feature/bmi/widgets/result_action_buttons.dart';
 import 'package:flutter/material.dart';
+import 'package:screenshot/screenshot.dart';
 
 class BMIResultScreen extends StatefulWidget {
   final String resultText;
   final String bmiValue;
   final bool isMale;
+  final double weight;
+  final double height;
 
   const BMIResultScreen({
     super.key,
     required this.resultText,
     required this.bmiValue,
     required this.isMale,
+    required this.weight,
+    required this.height,
   });
 
   @override
@@ -17,119 +28,132 @@ class BMIResultScreen extends StatefulWidget {
 }
 
 class _BMIResultScreenState extends State<BMIResultScreen>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _fadeIn;
+    with TickerProviderStateMixin {
+  late AnimationController _fadeController;
+  late AnimationController _slideController;
+  late AnimationController _scaleController;
+  ScreenshotController screenshotController = ScreenshotController();
 
   double get bmi => double.parse(widget.bmiValue);
-  Color get activeColor =>
-      widget.isMale ? Colors.blueAccent.shade100 : Colors.pinkAccent;
+
+  Color get resultColor {
+    if (bmi < 18.5) return Colors.blue.shade300;
+    if (bmi < 25) return Colors.green.shade300;
+    if (bmi < 30) return Colors.orange.shade300;
+    return Colors.red.shade300;
+  }
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      duration: const Duration(seconds: 1),
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    _fadeIn = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
-    _controller.forward();
+    _slideController = AnimationController(
+      duration: const Duration(milliseconds: 1000),
+      vsync: this,
+    );
+    _scaleController = AnimationController(
+      duration: const Duration(milliseconds: 1200),
+      vsync: this,
+    );
+
+    AppAnimations.fadeAnimation = CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeOut,
+    );
+    AppAnimations.slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+          CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
+        );
+    AppAnimations.scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _scaleController, curve: Curves.elasticOut),
+    );
+
+    _fadeController.forward();
+    _slideController.forward();
+    _scaleController.forward();
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _fadeController.dispose();
+    _slideController.dispose();
+    _scaleController.dispose();
     super.dispose();
-  }
-
-  Widget _buildBMIBar() {
-    const double minBMI = 10;
-    const double maxBMI = 40;
-    double normalizedBMI = ((bmi - minBMI) / (maxBMI - minBMI)).clamp(0.0, 1.0);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Stack(
-        children: [
-          Container(
-            height: 20,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [
-                  Colors.green,
-                  Colors.yellow,
-                  Colors.orange,
-                  Colors.red,
-                ],
-              ),
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-          Positioned(
-            left: normalizedBMI * MediaQuery.of(context).size.width * 0.85,
-            child: Icon(Icons.arrow_drop_down, size: 40, color: Colors.white),
-          ),
-        ],
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0E21),
+      backgroundColor: AppColors.backgroundColor,
       appBar: AppBar(
-        title: const Text("Your Result"),
-        backgroundColor: widget.isMale ? Colors.blue[900] : Colors.pink[900],
+        title: const Text(
+          "Your BMI Result",
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textPrimary,
+          ),
+        ),
+        backgroundColor: AppColors.backgroundColor,
+        elevation: 0,
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: AppColors.textPrimary),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
       body: FadeTransition(
-        opacity: _fadeIn,
-        child: Center(
-          child: Container(
-            margin: const EdgeInsets.all(20),
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1D1E33),
-              borderRadius: BorderRadius.circular(20),
-            ),
+        opacity: AppAnimations.fadeAnimation,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  widget.resultText,
-                  style: TextStyle(
-                    fontSize: 24,
-                    color: Colors.green.shade200,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Hero(
-                  tag: "bmi_value",
-                  child: Material(
-                    color: Colors.transparent,
-                    child: Text(
-                      widget.bmiValue,
-                      style: TextStyle(
-                        fontSize: 60,
-                        fontWeight: FontWeight.bold,
-                        color: activeColor,
-                      ),
+                Container(
+                  height: 4,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: widget.isMale
+                          ? [AppColors.malePrimary, AppColors.maleSecondary]
+                          : [
+                              AppColors.femalePrimary,
+                              AppColors.femaleSecondary,
+                            ],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
                     ),
+                    borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-                const SizedBox(height: 8),
-                const Text(
-                  'BMI (Body Mass Index)',
-                  style: TextStyle(fontSize: 18, color: Colors.white60),
+
+                // Main Result Card
+                Screenshot(
+                  controller: screenshotController,
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 30),
+                      CustomeResultCard(
+                        resultColor: resultColor,
+                        widget: widget,
+                      ),
+                      const SizedBox(height: 32),
+                      CustomBMIRange(bmi: bmi, resultColor: resultColor),
+                      const SizedBox(height: 24),
+                      HealthAdvice(
+                        isMale: widget.isMale,
+                        weight: widget.weight,
+                        height: widget.height,
+                        bmi: bmi,
+                      ),
+                      const SizedBox(height: 32),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 32),
-                _buildBMIBar(),
+                ResultActionButtons(screenshotController: screenshotController),
                 const SizedBox(height: 20),
-                Text(
-                  'Normal range is 18.5–24.9',
-                  style: TextStyle(color: Colors.white54),
-                ),
               ],
             ),
           ),
@@ -138,3 +162,4 @@ class _BMIResultScreenState extends State<BMIResultScreen>
     );
   }
 }
+

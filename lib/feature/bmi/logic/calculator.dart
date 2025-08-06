@@ -20,4 +20,20 @@ class BMICalculator {
     if (result < 40) return 'Severely obese';
     return 'Very severely obese';
   }
+
+ static String getWeightAdjustmentAdvice(double weight, double height) {
+  final minHealthy = 18.5 * height * height;
+  final maxHealthy = 24.9 * height * height;
+
+  if (weight < minHealthy) {
+    final toGain = minHealthy - weight;
+    return 'You should gain about ${toGain.toStringAsFixed(1)} kg to reach a healthy BMI.';
+  } else if (weight > maxHealthy) {
+    final toLose = weight - maxHealthy;
+    return 'You should lose about ${toLose.toStringAsFixed(1)} kg to reach a healthy BMI.';
+  } else {
+    return 'You are already in the healthy weight range.';
+  }
+}
+
 }
