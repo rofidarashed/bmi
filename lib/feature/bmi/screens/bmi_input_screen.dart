@@ -1,7 +1,8 @@
-import 'package:bmi/core/app_animations.dart';
 import 'package:bmi/core/app_colors.dart';
 import 'package:bmi/feature/bmi/widgets/calculate_button.dart';
+import 'package:bmi/feature/bmi/widgets/height_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../widgets/gender_card.dart';
 import '../widgets/value_adjuster.dart';
 
@@ -20,6 +21,7 @@ class _BMIInputScreenState extends State<BMIInputScreen>
   int age = 18;
 
   late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
@@ -28,7 +30,7 @@ class _BMIInputScreenState extends State<BMIInputScreen>
       duration: const Duration(milliseconds: 1200),
       vsync: this,
     );
-    AppAnimations.fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
     );
     _animationController.forward();
@@ -45,10 +47,10 @@ class _BMIInputScreenState extends State<BMIInputScreen>
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'BMI Calculator',
           style: TextStyle(
-            fontSize: 24,
+            fontSize: 24.sp,
             fontWeight: FontWeight.w600,
             color: AppColors.textPrimary,
           ),
@@ -58,12 +60,12 @@ class _BMIInputScreenState extends State<BMIInputScreen>
         centerTitle: true,
       ),
       body: FadeTransition(
-        opacity: AppAnimations.fadeAnimation,
+        opacity: _fadeAnimation,
         child: Column(
           children: [
             // Header with gradient
             Container(
-              height: 4,
+              height: 4.h,
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
@@ -76,8 +78,7 @@ class _BMIInputScreenState extends State<BMIInputScreen>
                 ),
               ),
             ),
-            const SizedBox(height: 20),
-
+            SizedBox(height: 20.h),
             // Gender Selection
             Expanded(
               child: Row(
@@ -103,87 +104,11 @@ class _BMIInputScreenState extends State<BMIInputScreen>
                 ],
               ),
             ),
-
-            // Height Slider
-            Expanded(
-              child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                padding: const EdgeInsets.all(3),
-                decoration: BoxDecoration(
-                  color: AppColors.cardColor,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.primaryColor.withOpacity(0.1),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(height: 10),
-                    Text(
-                      "HEIGHT",
-                      style: TextStyle(
-                        color: AppColors.textSecondary,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        letterSpacing: 1.2,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                      textBaseline: TextBaseline.alphabetic,
-                      children: [
-                        Text(
-                          height.round().toString(),
-                          style: TextStyle(
-                            fontSize: 48,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.primaryColor,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          "cm",
-                          style: TextStyle(
-                            fontSize: 20,
-                            color: AppColors.textSecondary,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SliderTheme(
-                      data: SliderTheme.of(context).copyWith(
-                        activeTrackColor: AppColors.primaryColor,
-                        inactiveTrackColor: AppColors.surfaceColor,
-                        thumbColor: AppColors.primaryColor,
-                        overlayColor: AppColors.primaryColor.withOpacity(0.2),
-                        thumbShape: const RoundSliderThumbShape(
-                          enabledThumbRadius: 12,
-                        ),
-                        overlayShape: const RoundSliderOverlayShape(
-                          overlayRadius: 24,
-                        ),
-                      ),
-                      child: Slider(
-                        value: height,
-                        min: 100,
-                        max: 220,
-                        onChanged: (val) => setState(() => height = val),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            HeightSlider(
+              height: height,
+              onChanged: (val) => setState(() => height = val),
             ),
-
-            // Weight and Age
+            //Weight and age
             Expanded(
               child: Row(
                 children: [
