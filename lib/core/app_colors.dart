@@ -1,4 +1,4 @@
-import 'dart:ui';
+import 'package:flutter/material.dart';
 
 class AppColors {
   static const Color primaryColor = Color(0xFF6C5CE7);
@@ -19,9 +19,13 @@ class AppColors {
   static const Color femalePrimary = Color(0xFFE84393);
   static const Color femaleSecondary = Color(0xFFF8A5C2);
 
-  static const Color underweightColor =  Color(0xFF74B9FF);
-  static const Color normalColor =  Color(0xFF00CEC9);
-  static const Color overweightColor =  Color(0xFFFDCB6E);
-  static const Color obeseColor =  Color(0xFFE17055);
+  static const Color underweightColor = Color(0xFF74B9FF);
+  static const Color normalColor = Color(0xFF00CEC9);
+  static const Color overweightColor = Color(0xFFFDCB6E);
+  static const Color obeseColor = Color(0xFFE17055);
 
+  static Color resultBluColor = Colors.blue.shade300;
+  static Color resultGreenColor = Colors.green.shade300;
+  static Color resultOrangeColor = Colors.orange.shade300;
+  static Color resultRedColor = Colors.red.shade300;
 }
