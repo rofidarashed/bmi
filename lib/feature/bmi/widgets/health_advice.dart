@@ -1,19 +1,19 @@
-import 'package:bmi/core/app_animations.dart';
 import 'package:bmi/core/app_colors.dart';
 import 'package:bmi/feature/bmi/logic/calculator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class HealthAdvice extends StatelessWidget {
   const HealthAdvice({
     super.key,
-    // required this.healthAdvice,
     required this.isMale,
     required this.weight,
-    required this.height, required this.bmi,
+    required this.height,
+    required this.bmi,
+    required this.slideAnimation,
   });
   final double weight;
   final double height;
-  // final String healthAdvice;
   final bool isMale;
   final double bmi;
 
@@ -38,13 +38,15 @@ class HealthAdvice extends StatelessWidget {
         : "You're in the obese range. Consider professional guidance for managing weight and hormonal balance.";
   }
 
+  final Animation<Offset> slideAnimation;
+
   @override
   Widget build(BuildContext context) {
     return SlideTransition(
-      position: AppAnimations.slideAnimation,
+      position: slideAnimation,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24.w),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: isMale
@@ -59,12 +61,12 @@ class HealthAdvice extends StatelessWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(20.r),
           border: Border.all(
             color: isMale
                 ? AppColors.malePrimary.withOpacity(0.2)
                 : AppColors.femalePrimary.withOpacity(0.2),
-            width: 1,
+            width: 1.w,
           ),
         ),
         child: Column(
@@ -73,12 +75,12 @@ class HealthAdvice extends StatelessWidget {
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: EdgeInsets.all(8.w),
                   decoration: BoxDecoration(
                     color: isMale
                         ? AppColors.malePrimary.withOpacity(0.2)
                         : AppColors.femalePrimary.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(8.r),
                   ),
                   child: Icon(
                     Icons.health_and_safety,
@@ -88,33 +90,33 @@ class HealthAdvice extends StatelessWidget {
                     size: 24,
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12.w),
                 Text(
                   'Health Advice',
                   style: TextStyle(
-                    fontSize: 18,
+                    fontSize: 18.sp,
                     fontWeight: FontWeight.w600,
                     color: AppColors.textPrimary,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             Text(
               healthAdvice,
               style: TextStyle(
-                fontSize: 15,
+                fontSize: 15.sp,
                 color: AppColors.textSecondary,
                 height: 1.5,
                 fontWeight: FontWeight.w400,
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
 
             Text(
               BMICalculator.getWeightAdjustmentAdvice(weight, height),
               style: TextStyle(
-                fontSize: 15,
+                fontSize: 15.sp,
                 color: AppColors.textSecondary,
                 height: 1.5,
                 fontWeight: FontWeight.w500,

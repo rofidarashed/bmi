@@ -1,10 +1,10 @@
-import 'package:bmi/core/app_animations.dart';
 import 'package:bmi/core/app_colors.dart';
 import 'package:bmi/feature/bmi/widgets/bmi_range.dart';
-import 'package:bmi/feature/bmi/widgets/custome_result_card.dart';
+import 'package:bmi/feature/bmi/widgets/custom_result_card.dart';
 import 'package:bmi/feature/bmi/widgets/health_advice.dart';
 import 'package:bmi/feature/bmi/widgets/result_action_buttons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:screenshot/screenshot.dart';
 
 class BMIResultScreen extends StatefulWidget {
@@ -32,15 +32,18 @@ class _BMIResultScreenState extends State<BMIResultScreen>
   late AnimationController _fadeController;
   late AnimationController _slideController;
   late AnimationController _scaleController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+  late Animation<double> _scaleAnimation;
   ScreenshotController screenshotController = ScreenshotController();
 
   double get bmi => double.parse(widget.bmiValue);
 
   Color get resultColor {
-    if (bmi < 18.5) return Colors.blue.shade300;
-    if (bmi < 25) return Colors.green.shade300;
-    if (bmi < 30) return Colors.orange.shade300;
-    return Colors.red.shade300;
+    if (bmi < 18.5) return AppColors.resultBluColor;
+    if (bmi < 25) return AppColors.resultGreenColor;
+    if (bmi < 30) return AppColors.resultOrangeColor;
+    return AppColors.resultRedColor;
   }
 
   @override
@@ -59,15 +62,15 @@ class _BMIResultScreenState extends State<BMIResultScreen>
       vsync: this,
     );
 
-    AppAnimations.fadeAnimation = CurvedAnimation(
+    _fadeAnimation = CurvedAnimation(
       parent: _fadeController,
       curve: Curves.easeOut,
     );
-    AppAnimations.slideAnimation =
+    _slideAnimation =
         Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
           CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
         );
-    AppAnimations.scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
       CurvedAnimation(parent: _scaleController, curve: Curves.elasticOut),
     );
 
@@ -89,10 +92,10 @@ class _BMIResultScreenState extends State<BMIResultScreen>
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           "Your BMI Result",
           style: TextStyle(
-            fontSize: 22,
+            fontSize: 22.sp,
             fontWeight: FontWeight.w600,
             color: AppColors.textPrimary,
           ),
@@ -106,14 +109,14 @@ class _BMIResultScreenState extends State<BMIResultScreen>
         ),
       ),
       body: FadeTransition(
-        opacity: AppAnimations.fadeAnimation,
+        opacity: _fadeAnimation,
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(20),
+            padding: EdgeInsets.all(20.w),
             child: Column(
               children: [
                 Container(
-                  height: 4,
+                  height: 4.h,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: widget.isMale
@@ -125,35 +128,44 @@ class _BMIResultScreenState extends State<BMIResultScreen>
                       begin: Alignment.centerLeft,
                       end: Alignment.centerRight,
                     ),
-                    borderRadius: BorderRadius.circular(2),
+                    borderRadius: BorderRadius.circular(2.r),
                   ),
                 ),
 
-                // Main Result Card
                 Screenshot(
                   controller: screenshotController,
                   child: Column(
                     children: [
-                      const SizedBox(height: 30),
+                      SizedBox(height: 30.h),
                       CustomeResultCard(
                         resultColor: resultColor,
                         widget: widget,
+                        slideAnimation: _slideAnimation,
+                        scaleAnimation: _scaleAnimation,
                       ),
-                      const SizedBox(height: 32),
-                      CustomBMIRange(bmi: bmi, resultColor: resultColor),
-                      const SizedBox(height: 24),
+                      SizedBox(height: 32.h),
+                      CustomBMIRange(
+                        bmi: bmi,
+                        resultColor: resultColor,
+                        slideAnimation: _slideAnimation,
+                      ),
+                      SizedBox(height: 24.h),
                       HealthAdvice(
                         isMale: widget.isMale,
                         weight: widget.weight,
                         height: widget.height,
                         bmi: bmi,
+                        slideAnimation: _slideAnimation,
                       ),
-                      const SizedBox(height: 32),
+                      SizedBox(height: 32.h),
                     ],
                   ),
                 ),
-                ResultActionButtons(screenshotController: screenshotController),
-                const SizedBox(height: 20),
+                ResultActionButtons(
+                  screenshotController: screenshotController,
+                  slideAnimation: _slideAnimation,
+                ),
+                SizedBox(height: 20.h),
               ],
             ),
           ),
@@ -162,4 +174,3 @@ class _BMIResultScreenState extends State<BMIResultScreen>
     );
   }
 }
-
