@@ -13,10 +13,15 @@ A modern and intuitive BMI (Body Mass Index) calculator built with Flutter. This
 *   **Share Result**: Functionality to share the BMI result as an image.
 *   **Responsive Design**: Adapts to different screen sizes using `flutter_screenutil`.
 *   **Smooth Animations**: Engaging animations for a better user experience.
-
 ## 📱 Screenshots
 
+<img src="https://github.com/user-attachments/assets/a3fa1592-e409-4f7c-ad54-a6e78fa1b3ab" width="300"> 
+<img src="https://github.com/user-attachments/assets/b406bd4d-287a-4a98-9eff-f4cc9de48810" width="300"> 
+<img src="https://github.com/user-attachments/assets/2999574f-2ff2-4ab8-ac5b-62e7f021de1f" width="300"> 
 
+## 🎥 Demo Video
+
+<video src="https://github.com/user-attachments/assets/06a7e7bc-1938-41e3-9476-126a51b04618" width="300" autoplay loop muted></video>
 
 ## 🛠️ Tech Stack
 
